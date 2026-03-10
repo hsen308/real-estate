@@ -357,11 +357,14 @@
   .pd { /* post design base */
     width: 1080px;
     height: 1080px;
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     overflow: hidden;
     font-family: 'DM Sans', sans-serif;
     display: flex;
     flex-direction: column;
+    transform-origin: top left;
   }
 
   /* BUYER POSTS */
@@ -1517,9 +1520,6 @@ function buildPostHTML(post) {
       <div class="corner-tl"></div>
       <div class="corner-br"></div>
 
-      <!-- Background ghost number -->
-      <div class="pd-number">${String(post.id).padStart(2,'0')}</div>
-
       <!-- Badge -->
       <div class="pd-badge">
         <div class="pd-badge-dot"></div>
@@ -1632,12 +1632,19 @@ async function downloadPost(id) {
 
   try {
     const design = document.getElementById(`post-design-${id}`);
-    const originalTransform = design.style.transform;
-    design.style.transform = 'none';
-    design.style.width = '1080px';
-    design.style.height = '1080px';
 
-    const canvas = await html2canvas(design, {
+    // Clone into body to avoid overflow:hidden clipping from parent wrapper
+    const clone = design.cloneNode(true);
+    clone.style.position = 'fixed';
+    clone.style.top = '-9999px';
+    clone.style.left = '-9999px';
+    clone.style.width = '1080px';
+    clone.style.height = '1080px';
+    clone.style.transform = 'none';
+    clone.style.zIndex = '-1';
+    document.body.appendChild(clone);
+
+    const canvas = await html2canvas(clone, {
       width: 1080,
       height: 1080,
       scale: 1,
@@ -1646,7 +1653,7 @@ async function downloadPost(id) {
       logging: false
     });
 
-    design.style.transform = originalTransform;
+    document.body.removeChild(clone);
 
     const link = document.createElement('a');
     const post = posts.find(p => p.id === id);
@@ -1673,10 +1680,18 @@ async function downloadAll() {
 
     try {
       const design = document.getElementById(`post-design-${post.id}`);
-      const originalTransform = design.style.transform;
-      design.style.transform = 'none';
 
-      const canvas = await html2canvas(design, {
+      const clone = design.cloneNode(true);
+      clone.style.position = 'fixed';
+      clone.style.top = '-9999px';
+      clone.style.left = '-9999px';
+      clone.style.width = '1080px';
+      clone.style.height = '1080px';
+      clone.style.transform = 'none';
+      clone.style.zIndex = '-1';
+      document.body.appendChild(clone);
+
+      const canvas = await html2canvas(clone, {
         width: 1080,
         height: 1080,
         scale: 1,
@@ -1685,7 +1700,7 @@ async function downloadAll() {
         logging: false
       });
 
-      design.style.transform = originalTransform;
+      document.body.removeChild(clone);
 
       const link = document.createElement('a');
       const safeTitle = post.title.replace(/\n/g, '-').replace(/[^a-z0-9\-]/gi, '').toLowerCase();
