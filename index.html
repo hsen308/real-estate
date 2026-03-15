@@ -484,7 +484,7 @@
   }
 
   .corner-br {
-    bottom: 60px;
+    bottom: 116px;
     right: 60px;
     border-bottom: 2px solid rgba(201,168,76,0.4);
     border-right: 2px solid rgba(201,168,76,0.4);
@@ -533,7 +533,7 @@
     inset: 0;
     display: flex;
     flex-direction: column;
-    padding: 160px 80px 80px;
+    padding: 160px 80px 120px;
     z-index: 5;
   }
 
@@ -551,16 +551,29 @@
   }
 
   .pd-icon-area {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
-    border: 1.5px solid rgba(201,168,76,0.3);
-    border-radius: 20px;
+    width: 80px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 46px;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .pd-icon-hex {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    position: relative;
+  }
+
+  .pd-icon-hex::after {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    background: var(--navy2);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   }
 
   .pd-eyebrow {
@@ -1410,6 +1423,11 @@ const catColors = {
   auth:   { accent: '#c9a84c', label: 'AUTHORITY' }
 };
 
+function stripEmoji(s) {
+  if (!s) return '';
+  return String(s).replace(/\p{Extended_Pictographic}/gu, '').replace(/\s+/g, ' ').trim();
+}
+
 function buildPostHTML(post) {
   const cc = catColors[post.cat];
   const typeClass = `pd-${post.cat}`;
@@ -1421,7 +1439,7 @@ function buildPostHTML(post) {
         ${post.items.map((item, i) => `
           <li>
             <span class="pd-list-num">0${i+1}</span>
-            <span>${item}</span>
+            <span>${stripEmoji(item)}</span>
           </li>`).join('')}
       </ul>`;
       break;
@@ -1431,8 +1449,8 @@ function buildPostHTML(post) {
         ${post.steps.map(([step, text]) => `
           <div class="pd-tl-item">
             <div class="pd-tl-dot"></div>
-            <div class="pd-tl-step">${step}</div>
-            <div class="pd-tl-text">${text}</div>
+            <div class="pd-tl-step">${stripEmoji(step)}</div>
+            <div class="pd-tl-text">${stripEmoji(text)}</div>
           </div>`).join('')}
       </div>`;
       break;
@@ -1442,7 +1460,7 @@ function buildPostHTML(post) {
         ${post.bars.map(([label, pct]) => `
           <div class="pd-bar-item">
             <div class="pd-bar-label">
-              <span>${label}</span>
+              <span>${stripEmoji(label)}</span>
               <span class="pd-bar-pct">${pct}%</span>
             </div>
             <div class="pd-bar-track"><div class="pd-bar-fill" style="width:${pct}%"></div></div>
@@ -1454,8 +1472,8 @@ function buildPostHTML(post) {
       inner = `<div class="pd-stats-grid">
         ${post.stats.map(([val, lbl]) => `
           <div class="pd-stat-box">
-            <div class="pd-stat-val">${val}</div>
-            <div class="pd-stat-lbl">${lbl}</div>
+            <div class="pd-stat-val">${stripEmoji(val)}</div>
+            <div class="pd-stat-lbl">${stripEmoji(lbl)}</div>
           </div>`).join('')}
       </div>`;
       break;
@@ -1463,15 +1481,13 @@ function buildPostHTML(post) {
     case 'this-that':
       inner = `<div class="pd-this-that" style="position:relative;flex:1;min-height:400px;">
         <div class="pd-choice">
-          <div class="pd-choice-emoji">${post.a.emoji}</div>
-          <div class="pd-choice-label">${post.a.label}</div>
-          ${post.bodyA ? `<div style="font-size:22px;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5">${post.bodyA.join('<br>')}</div>` : ''}
+          <div class="pd-choice-label">${stripEmoji(post.a.label)}</div>
+          ${post.bodyA ? `<div style="font-size:22px;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5">${post.bodyA.map(stripEmoji).join('<br>')}</div>` : ''}
         </div>
         <div class="pd-vs">VS</div>
         <div class="pd-choice">
-          <div class="pd-choice-emoji">${post.b.emoji}</div>
-          <div class="pd-choice-label">${post.b.label}</div>
-          ${post.bodyB ? `<div style="font-size:22px;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5">${post.bodyB.join('<br>')}</div>` : ''}
+          <div class="pd-choice-label">${stripEmoji(post.b.label)}</div>
+          ${post.bodyB ? `<div style="font-size:22px;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5">${post.bodyB.map(stripEmoji).join('<br>')}</div>` : ''}
         </div>
       </div>`;
       break;
@@ -1479,25 +1495,25 @@ function buildPostHTML(post) {
     case 'pills-highlight':
       inner = `<div class="pd-highlight">
         <div class="pd-highlight-label">Key Insight</div>
-        <div class="pd-highlight-text">${post.highlight}</div>
+        <div class="pd-highlight-text">${stripEmoji(post.highlight)}</div>
       </div>
       <div class="pd-pills">
-        ${post.pills.map(p => `<div class="pd-pill">${p}</div>`).join('')}
+        ${post.pills.map(p => `<div class="pd-pill">${stripEmoji(p)}</div>`).join('')}
       </div>`;
       break;
 
     case 'highlight-body':
       inner = `<div class="pd-highlight">
         <div class="pd-highlight-label">Key Insight</div>
-        <div class="pd-highlight-text">${post.highlight}</div>
+        <div class="pd-highlight-text">${stripEmoji(post.highlight)}</div>
       </div>
-      <div class="pd-body">${post.body.replace(/\n\n/g, '</p><p style="margin-top:20px">').replace(/^/, '<p>').replace(/$/, '</p>')}</div>`;
+      <div class="pd-body">${stripEmoji(post.body).replace(/\n\n/g, '</p><p style="margin-top:20px">').replace(/^/, '<p>').replace(/$/, '</p>')}</div>`;
       break;
 
     case 'cta':
       inner = `<div class="pd-cta-box">
-        <div class="pd-cta-text">${post.ctaTitle}</div>
-        <div class="pd-cta-sub">${post.ctaSub}</div>
+        <div class="pd-cta-text">${stripEmoji(post.ctaTitle)}</div>
+        <div class="pd-cta-sub">${stripEmoji(post.ctaSub)}</div>
       </div>`;
       break;
   }
@@ -1529,7 +1545,7 @@ function buildPostHTML(post) {
       <!-- Main Content -->
       <div class="pd-content">
         <!-- Icon -->
-        <div class="pd-icon-area">${post.icon}</div>
+        <div class="pd-icon-area"><div class="pd-icon-hex"></div></div>
 
         <!-- Title -->
         <div class="pd-eyebrow">Hussein Elmnini</div>
@@ -1553,7 +1569,7 @@ function buildPostHTML(post) {
         </div>
         <div class="pd-footer-right">
           <div class="pd-footer-web">${BRAND.web}</div>
-          <div class="pd-footer-loc">📍 ${BRAND.loc}</div>
+          <div class="pd-footer-loc">${BRAND.loc}</div>
         </div>
       </div>
     </div>`;
